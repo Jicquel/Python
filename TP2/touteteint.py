@@ -25,7 +25,21 @@ class Plateau:
         affiche le plateau de jeu sous format svg
         """
         for col in range(self.largeur):
-            print(chr(col+65))
+            print(str(col)+"   ", end="")
+
+        print("")
+        for col in range(self.largeur):
+            print("----", end="")
+
+        print("")
+
+        for ligne in range(self.hauteur):
+            print(chr(ligne+65)+" | ", end="")
+
+            for col in range(self.largeur):
+                sys.stdout.write('3s' % Fore.BLACK)
+
+            print("")
 
     def initialiser_dimensions(self, name_of_file):
         """
@@ -70,7 +84,7 @@ def main():
         sys.exit(1)
 
     init()
-    print(Fore.BLUE + 'blue text on stderr')
+    #print(Fore.BLUE + 'blue text on stderr')
     plateau = Plateau()
     plateau.charger_plateau(sys.argv[1])
     plateau.afficher()
