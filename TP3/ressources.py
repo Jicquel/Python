@@ -40,38 +40,56 @@ class Ressources:
 
             elif ressources_a_enlever > 0:
                 ressources_enlevees.append([intervalle[0],
-                                            intervalle[0]+ressources_a_enlever])
+                    intervalle[0]+ressources_a_enlever])
                 ressources_gardees.append([intervalle[0]+ressources_a_enlever,
-                                           intervalle[1]])
+                    intervalle[1]])
                 ressources_a_enlever = 0
             else:
                 ressources_gardees.append(intervalle)
 
         self.intervalles = ressources_gardees
         return Ressources(ressources_demandees, ressources_enlevees)
+    
+
+    def simplifier(self):
+        """ 
+        permet de simplifier [2,7], [7,9] en [2,9]
+        """
+        print("avant simplification:")
+        print(self.intervalles)
+
+        est_simplifie=False
+        if len(self.intervalles) >1:
+            while not est_simplifie:
+                for indice in range(len(self.intervalles)-1):
+                    if self.intervalles[indice][1]==self.intervalles[indice+1][0]:
+                        #dans ce cas on ajoute les extremités des deux intervalles.
+                        self.intervalles[indice]=[self.intervalles[indice][0],self.intervalles[indice+1][1]]
+                        del self.intervalles[indice+1]
+                        break
+                    elif indice == len(self.intervalles)-2:
+                        est_simplifie = True
+
+        print("après simplification:")
+        print(self.intervalles)
 
     def retourne(self, ressources_rendues):
         """
         remet les plages de ressources donnees dans le systeme.
         """
-        print(ressources_rendues.intervalles)
-        intervalles_finaux = []
-        #  min = (intervalle for intervalle in self.intervalles if min > min(intervalle))
         if len(self.intervalles) > 0:
-            min = self.intervalles[0][0]
+            for intervalle_rendu in ressources_rendues.intervalles:
+                for index, intervalle_actuel in enumerate(self.intervalles):
+                    if intervalle_rendu[1] <= intervalle_actuel[0]:
+                        self.intervalles.insert(index, intervalle_rendu)
+                        break
+                    elif index == len(self.intervalles)-1:#si on arrive à la fin des intervalles
+                        self.intervalles.append(intervalle_rendu)
+                        break
 
-            for intervalle in ressources_rendues.intervalles:
-                if intervalle[1] < min:
-                    intervalles_finaux.append(intervalle)
-                elif intervalle[1] == min:
-                    intervalles_finaux.append(
-                        intervalle.extend(self.intervalles[0])
-                    )
-                else:
-                    self.intervalles.extend(self.intervalles[1:])
         else:
             self.intervalles = ressources_rendues.intervalles
-
+        self.simplifier()
 
 
     def __str__(self):
@@ -82,9 +100,6 @@ class Ressources:
         """
         string = ""
         indice_actuel = 0
-        if len(self.intervalles) == 0:
-            for _ in range(0, self.nombre_ressources):
-                string += "."
         for intervalle in self.intervalles:
             while intervalle[0] > indice_actuel:
                 string += "."
@@ -93,8 +108,10 @@ class Ressources:
                 string += "x"
                 indice_actuel += 1
 
-        return string
+        for _ in range(indice_actuel, self.nombre_ressources):
+            string += "."
 
+        return string
 
 def test():
     """
